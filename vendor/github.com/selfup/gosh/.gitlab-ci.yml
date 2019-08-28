@@ -1,0 +1,17 @@
+stages:
+  - test
+
+test_lib:
+  only:
+    refs:
+      - master
+
+  stage: test
+
+  image: docker:stable
+
+  services:
+    - docker:dind
+
+  script:
+    - ./scripts/ci_test.sh
