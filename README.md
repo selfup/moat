@@ -6,20 +6,35 @@ Make your files safe before saving them to the cloud
 
 ```
 selfup@win42 MINGW64 ~/go/src/github.com/selfup/moat (master)
-$ moat -cmd=push
+$ moat -cmd=push -service=fixtures
 Moat path is: C:\Users\selfup\Moat
-Service path is: fixtures
+Service path is: fixtures\Moat
 
-Encrypted: C:\Users\selfup\Moat\omg.txt - to: fixtures\omg.txt
-Encrypted: C:\Users\selfup\Moat\wow.txt - to: fixtures\wow.txt
+Encrypted: C:\Users\selfup\Moat\omg.txt - to: fixtures\Moat\omg.txt
+Encrypted: C:\Users\selfup\Moat\wow.txt - to: fixtures\Moat\wow.txt
 
 selfup@win42 MINGW64 ~/go/src/github.com/selfup/moat (master)
-$ moat -cmd=pull
+$ moat -cmd=pull -service=fixtures
 Moat path is: C:\Users\selfup\Moat
-Service path is: fixtures
+Service path is: fixtures\Moat
 
-Decrypted: fixtures\omg.txt - to: C:\Users\selfup\Moat\omg.txt
-Decrypted: fixtures\wow.txt - to: C:\Users\selfup\Moat\wow.txt
+Decrypted: fixtures\Moat\omg.txt - to: C:\Users\selfup\Moat\omg.txt
+Decrypted: fixtures\Moat\wow.txt - to: C:\Users\selfup\Moat\wow.txt
+```
+
+## Help
+
+```
+$ moat -h
+Usage of moat.exe:
+  -cmd string
+        REQUIRED
+                main command
+                push will encrypt Moat/filename.ext to Service/Moat/filename.ext
+                pull will decrypt from Service/Moat/filename.ext to Moat/filename.ext
+  -service string
+        REQUIRED
+                Directory of cloud service that will sync on update
 ```
 
 #### TODO

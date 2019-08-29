@@ -23,14 +23,19 @@ func main() {
 	var cmd string
 	flag.StringVar(&cmd, "cmd", "", `REQUIRED
 	main command
-	push will encrypt to Service/Moat/filename.ext
+	push will encrypt Moat/filename.ext to Service/Moat/filename.ext
 	pull will decrypt from Service/Moat/filename.ext to Moat/filename.ext`)
 
 	var service string
-	flag.StringVar(&service, "service", "fixtures", `OPTIONAL
+	flag.StringVar(&service, "service", "", `REQUIRED
 	Directory of cloud service that will sync on update`)
 
 	flag.Parse()
+
+	if service == "" {
+		fmt.Println("Please provide a path for your Cloud service")
+		os.Exit(1)
+	}
 
 	moat := Moat{
 		Command:     cmd,
@@ -64,6 +69,7 @@ func (m *Moat) Scan() error {
 	}
 
 	m.MoatPath = home + moat
+	m.ServicePath = m.ServicePath + moat
 
 	fmt.Println("Moat path is:", m.MoatPath)
 	fmt.Println("Service path is:", m.ServicePath)
@@ -71,9 +77,14 @@ func (m *Moat) Scan() error {
 
 	moatDirExist := gosh.Fex(m.MoatPath)
 	if !moatDirExist {
-		err := gosh.MkDir(m.MoatPath)
-		if err != nil {
-			return err
+		moatErr := gosh.MkDir(m.MoatPath)
+		if moatErr != nil {
+			return moatErr
+		}
+
+		serviceErr := gosh.MkDir(m.ServicePath)
+		if serviceErr != nil {
+			return serviceErr
 		}
 	}
 
