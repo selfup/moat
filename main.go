@@ -9,7 +9,6 @@ import (
 	"runtime"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/selfup/gosh"
 	"github.com/selfup/moat/pkg/encryption"
@@ -18,8 +17,6 @@ import (
 const aesKey = "12345678901234567890123456789012"
 
 func main() {
-	currentTime := time.Now()
-
 	var cmd string
 	flag.StringVar(&cmd, "cmd", "", `REQUIRED
 	main command
@@ -30,6 +27,10 @@ func main() {
 	flag.StringVar(&service, "service", "", `REQUIRED
 	Directory of cloud service that will sync on update`)
 
+	var moat string
+	flag.StringVar(&moat, "moat", "", `REQUIRED
+	Directory of cloud service that will sync on update`)
+
 	flag.Parse()
 
 	if service == "" {
@@ -37,12 +38,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	moat := Moat{
+	m := Moat{
 		Command:     cmd,
+		MoatPath:    moat,
 		ServicePath: service,
 	}
 
-	moat.StartPrompt(currentTime)
+	m.Run()
 }
 
 // Moat holds cli args, process info, and a mutex
@@ -68,12 +70,13 @@ func (m *Moat) Scan() error {
 		moat = "/Moat"
 	}
 
-	m.MoatPath = home + moat
+	if m.MoatPath == "" {
+		m.MoatPath = home + moat
+	}
+
 	m.ServicePath = m.ServicePath + moat
 
-	fmt.Println("Moat path is:", m.MoatPath)
-	fmt.Println("Service path is:", m.ServicePath)
-	fmt.Println("")
+	m.printPaths()
 
 	moatDirExist := gosh.Fex(m.MoatPath)
 	if !moatDirExist {
@@ -115,8 +118,8 @@ func (m *Moat) scan(path string, info os.FileInfo, err error) error {
 	return nil
 }
 
-// StartPrompt polls given directory and runs given command if files are changed
-func (m *Moat) StartPrompt(currentTime time.Time) {
+// Run runs moat
+func (m *Moat) Run() {
 	err := m.Scan()
 	if err != nil {
 		log.Fatal(err)
@@ -136,13 +139,19 @@ func (m *Moat) StartPrompt(currentTime time.Time) {
 // Push encrypts Moat files to Service/Moat
 func (m *Moat) Push(moatFile string) {
 	moatText := gosh.Rd(moatFile)
-
 	encryptedFile := encryption.Encrypt(moatText, aesKey)
 	servicePath := m.servicePath(moatFile)
+	filePathDir := filepath.Dir(moatFile)
+	serviceFilePathDir := m.servicePath(filePathDir)
 
-	err := gosh.Wr(servicePath, encryptedFile, 0777)
-	if err != nil {
-		panic(err)
+	merr := gosh.MkDir(serviceFilePathDir)
+	if merr != nil {
+		panic(merr)
+	}
+
+	werr := gosh.Wr(servicePath, encryptedFile, 0777)
+	if werr != nil {
+		panic(werr)
 	}
 
 	fmt.Println("Encrypted:", moatFile, "- to:", servicePath)
@@ -151,14 +160,18 @@ func (m *Moat) Push(moatFile string) {
 // Pull decrypts Service/Moat files back to Moat
 func (m *Moat) Pull(serviceFile string) {
 	serviceText := gosh.Rd(serviceFile)
-
 	decryptedFile := encryption.Decrypt(serviceText, aesKey)
-
 	moatFile := m.moatPath(serviceFile)
+	filePathDir := filepath.Dir(serviceFile)
 
-	err := gosh.Wr(moatFile, decryptedFile, 0777)
-	if err != nil {
-		panic(err)
+	merr := gosh.MkDir(filePathDir)
+	if merr != nil {
+		panic(merr)
+	}
+
+	werr := gosh.Wr(moatFile, decryptedFile, 0777)
+	if werr != nil {
+		panic(werr)
 	}
 
 	fmt.Println("Decrypted:", serviceFile, "- to:", moatFile)
@@ -174,4 +187,10 @@ func (m *Moat) moatPath(serviceFile string) string {
 	strippedPath := strings.Replace(serviceFile, m.ServicePath, "", 1)
 
 	return m.MoatPath + strippedPath
+}
+
+func (m *Moat) printPaths() {
+	fmt.Println("Moat path is:", m.MoatPath)
+	fmt.Println("Service path is:", m.ServicePath)
+	fmt.Println("")
 }
