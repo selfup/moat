@@ -3,22 +3,41 @@ package encryption
 import (
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha512"
 	"crypto/x509"
 	"encoding/pem"
+	"hash"
 	"log"
 )
 
-// GeneratePrivateRSAKey generates a Private RSA Key and outputs pem file format bytes
-func GeneratePrivateRSAKey() []byte {
+// GeneratePrivateRSAKeyPair generates a Private RSA Key and outputs pem file format bytes
+func GeneratePrivateRSAKeyPair() (*rsa.PrivateKey, []byte) {
 	bitSize := 4096
 	privateKey, err := generatePrivateKey(bitSize)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	privateKeyBytes := encodePrivateKeyToPEM(privateKey)
+	privateKeyPEMBytes := encodePrivateKeyToPEM(privateKey)
 
-	return privateKeyBytes
+	return privateKey, privateKeyPEMBytes
+}
+
+// DecryptAESKey decrypts the AES key
+func DecryptAESKey(privateKey []byte, encryptedText, label []byte) (decryptedText []byte) {
+	parsedPrivateKey, perr := x509.ParsePKCS1PrivateKey(privateKey)
+	if perr != nil {
+		panic(perr)
+	}
+
+	var err error
+	var hash hash.Hash
+	hash = sha512.New()
+	if decryptedText, err = rsa.DecryptOAEP(hash, rand.Reader, parsedPrivateKey, encryptedText, label); err != nil {
+		log.Fatal(err)
+	}
+
+	return decryptedText
 }
 
 func generatePrivateKey(bitSize int) (*rsa.PrivateKey, error) {
