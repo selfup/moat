@@ -2,7 +2,7 @@
 
 Make your files safe before saving them to the cloud
 
-## In Development - DO NOT USE - IN DEBUG MODE
+## In Development - DO NOT USE
 
 ```
 selfup@win42 MINGW64 ~/go/src/github.com/selfup/moat (master)
