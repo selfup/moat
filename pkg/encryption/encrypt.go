@@ -12,7 +12,6 @@ import (
 // Encrypt will encrypt the text file
 func Encrypt(fileContents []byte, aesKey string) []byte {
 	key := []byte(aesKey)
-	fmt.Println("AES KEY", key)
 
 	c, err := aes.NewCipher(key)
 	if err != nil {
