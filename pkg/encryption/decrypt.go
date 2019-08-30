@@ -3,12 +3,14 @@ package encryption
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"fmt"
 	"log"
 )
 
 // Decrypt decrypts the text file
 func Decrypt(contents []byte, aesKey string) []byte {
 	key := []byte(aesKey)
+	fmt.Println("AES KEY", key)
 
 	c, err := aes.NewCipher(key)
 	if err != nil {

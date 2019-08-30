@@ -121,8 +121,6 @@ func (m *Moat) Scan() error {
 
 		m.DecryptedAesKey = string(key)
 
-		fmt.Println("AES KEY", m.DecryptedAesKey)
-
 		privateKey, privateKeyPEMBytes := encryption.GeneratePrivateRSAKeyPair()
 		publicKeyBytes, pubErr := encryption.GeneratePublicRSAKey(&privateKey.PublicKey)
 		if pubErr != nil {
@@ -134,23 +132,23 @@ func (m *Moat) Scan() error {
 		privateWriteErr := gosh.Wr(m.PrivateKeyPath, privateKeyPEMBytes, 0777)
 		if privateWriteErr != nil {
 			panic(privateWriteErr)
+		} else {
+			fmt.Println("Private Key written to:", m.PrivateKeyPath)
 		}
-
-		fmt.Println("Private Key written to:", m.PrivateKeyPath)
 
 		publicWriteErr := gosh.Wr(m.PublicKeyPath, publicKeyBytes, 0777)
 		if publicWriteErr != nil {
 			panic(publicWriteErr)
+		} else {
+			fmt.Println("Public Key written to:", m.PublicKeyPath)
 		}
-
-		fmt.Println("Public Key written to:", m.PublicKeyPath)
 
 		aesKeyErr := gosh.Wr(m.EncryptedAESKeyPath, encryptedAesKey, 0777)
 		if aesKeyErr != nil {
 			panic(aesKeyErr)
+		} else {
+			fmt.Println("Encrypted AES Key written to:", m.EncryptedAESKeyPath)
 		}
-
-		fmt.Println("Encrypted AES Key written to:", m.EncryptedAESKeyPath)
 	}
 
 	readPrivateKey := gosh.Rd(m.PrivateKeyPath)
@@ -240,8 +238,6 @@ func (m *Moat) Pull(serviceFile string) {
 	if strings.Contains(serviceFile, "publicmoatssh") {
 		return
 	}
-
-	fmt.Println("AES KEY", m.DecryptedAesKey)
 
 	serviceText := gosh.Rd(serviceFile)
 	decryptedFile := encryption.Decrypt(serviceText, m.DecryptedAesKey)

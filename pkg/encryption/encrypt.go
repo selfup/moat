@@ -4,6 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"fmt"
 	"io"
 	"log"
 )
@@ -11,6 +12,7 @@ import (
 // Encrypt will encrypt the text file
 func Encrypt(fileContents []byte, aesKey string) []byte {
 	key := []byte(aesKey)
+	fmt.Println("AES KEY", key)
 
 	c, err := aes.NewCipher(key)
 	if err != nil {
