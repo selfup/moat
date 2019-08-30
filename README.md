@@ -57,12 +57,18 @@ Encrypted: archive\Moat\wow.txt - to: fixtures\Moat\wow.txt
 
 ```
 $ moat -h
-Usage of moat.exe:
+Usage of moat:
   -cmd string
         REQUIRED
                 main command
                 push will encrypt Moat/filename.ext to Service/Moat/filename.ext
                 pull will decrypt from Service/Moat/filename.ext to Moat/filename.ext
+  -home string
+        OPTIONAL
+                Home dir (here you want Moat to be created at) - defaults to $HOME or USERPROFILE
+  -moat string
+        OPTIONAL
+                What you want Moat to be called - essentially Vault names
   -service string
         REQUIRED
                 Directory of cloud service that will sync on update
