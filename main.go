@@ -235,7 +235,7 @@ func (m *Moat) Push(moatFile string) {
 
 // Pull decrypts Service/Moat files back to Moat
 func (m *Moat) Pull(serviceFile string) {
-	if strings.Contains(serviceFile, "publicmoatssh") {
+	if strings.Contains(serviceFile, "publicmoatssh") || strings.Contains(serviceFile, "aesKey") {
 		return
 	}
 
