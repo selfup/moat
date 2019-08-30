@@ -5,27 +5,32 @@ Make your files safe before saving them to the cloud
 ## In Development - DO NOT USE
 
 ```
-selfup@win42 MINGW64 ~/go/src/github.com/selfup/moat (master)
-$ moat -cmd=push -service=fixtures
+$ moat -service="fixtures"
 Moat path is: C:\Users\selfup\Moat
 Service path is: fixtures\Moat
 
-Encrypted: C:\Users\selfup\Moat\omg.txt - to: fixtures\Moat\omg.txt
+Private Key written to: C:\Users\selfup\Moat\privatemoatssh
+Public Key written to: fixtures\Moat\publicmoatssh
+Encrypted AES Key written to: fixtures\Moat\aesKey
+
+$ echo "wow this is going to be encrypted and saved to a cloud service directory" >> ~/Moat/wow.txt
+
+$ moat -service="fixtures" -cmd=push
+Moat path is: C:\Users\selfup\Moat
+Service path is: fixtures\Moat
+
 Encrypted: C:\Users\selfup\Moat\wow.txt - to: fixtures\Moat\wow.txt
 
-selfup@win42 MINGW64 ~/go/src/github.com/selfup/moat (master)
-$ moat -cmd=pull -service=fixtures
+$ moat -service="fixtures" -cmd=pull
 Moat path is: C:\Users\selfup\Moat
 Service path is: fixtures\Moat
 
-Decrypted: fixtures\Moat\omg.txt - to: C:\Users\selfup\Moat\omg.txt
 Decrypted: fixtures\Moat\wow.txt - to: C:\Users\selfup\Moat\wow.txt
 ```
 
 ## Custom Paths (Vaults)
 
 ```bash
-selfup@win42 MINGW64 ~/go/src/github.com/selfup/moat (master)
 $ moat -home="archive" -service="fixtures" -cmd=push
 Moat path is: archive\Moat
 Service path is: fixtures\Moat
@@ -35,14 +40,12 @@ Public Key written to: fixtures\Moat\publicmoatssh
 Encrypted AES Key written to: fixtures\Moat\aesKey
 Encrypted: archive\Moat\wow.txt - to: fixtures\Moat\wow.txt
 
-selfup@win42 MINGW64 ~/go/src/github.com/selfup/moat (master)
 $ moat -home="archive" -service="fixtures" -cmd=pull
 Moat path is: archive\Moat
 Service path is: fixtures\Moat
 
 Decrypted: fixtures\Moat\wow.txt - to: archive\Moat\wow.txt
 
-selfup@win42 MINGW64 ~/go/src/github.com/selfup/moat (master)
 $ moat -home="archive" -service="fixtures" -cmd=push
 Moat path is: archive\Moat
 Service path is: fixtures\Moat
