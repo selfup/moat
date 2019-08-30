@@ -22,6 +22,34 @@ Decrypted: fixtures\Moat\omg.txt - to: C:\Users\selfup\Moat\omg.txt
 Decrypted: fixtures\Moat\wow.txt - to: C:\Users\selfup\Moat\wow.txt
 ```
 
+## Custom Paths (Vaults)
+
+```bash
+selfup@win42 MINGW64 ~/go/src/github.com/selfup/moat (master)
+$ moat -home="archive" -service="fixtures" -cmd=push
+Moat path is: archive\Moat
+Service path is: fixtures\Moat
+
+Private Key written to: archive\Moat\privatemoatssh
+Public Key written to: fixtures\Moat\publicmoatssh
+Encrypted AES Key written to: fixtures\Moat\aesKey
+Encrypted: archive\Moat\wow.txt - to: fixtures\Moat\wow.txt
+
+selfup@win42 MINGW64 ~/go/src/github.com/selfup/moat (master)
+$ moat -home="archive" -service="fixtures" -cmd=pull
+Moat path is: archive\Moat
+Service path is: fixtures\Moat
+
+Decrypted: fixtures\Moat\wow.txt - to: archive\Moat\wow.txt
+
+selfup@win42 MINGW64 ~/go/src/github.com/selfup/moat (master)
+$ moat -home="archive" -service="fixtures" -cmd=push
+Moat path is: archive\Moat
+Service path is: fixtures\Moat
+
+Encrypted: archive\Moat\wow.txt - to: fixtures\Moat\wow.txt
+```
+
 ## Help
 
 ```
