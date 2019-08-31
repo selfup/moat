@@ -66,7 +66,7 @@ Your 32 byte passphrase is encrypted using the Public RSA key before being store
 
 The 32 byte passphrase is decrypted using the Private RSA key in your Vault.
 
-All files are decrypted using the decrypted 32byte passphrase in your service directory paired with the local 32 byte label.
+All files are decrypted using the 32byte passphrase paired with the local 32 byte label.
 
 ## Custom Paths (Vaults)
 
