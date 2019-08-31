@@ -16,7 +16,7 @@ $WOW | Set-Content archive/Moat/wow.txt
 
 moat -home="archive" -service="fixtures" -cmd=push
 
-Remove-Item archive\Moat\wow.txt
+Remove-Item archive/Moat/wow.txt
 
 moat -home="archive" -service="fixtures" -cmd=pull
 
