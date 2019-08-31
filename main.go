@@ -131,7 +131,7 @@ func (m *Moat) Scan() error {
 		if labelWriteErr != nil {
 			panic(labelWriteErr)
 		} else {
-			fmt.Println("Label Key written to:", m.PrivateKeyPath)
+			fmt.Println("Label Key written to:", m.LabelPath)
 		}
 
 		m.DecryptedAesKey = string(key)

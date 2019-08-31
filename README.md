@@ -11,7 +11,7 @@ $ moat -service="fixtures"
 Moat path is: C:\Users\selfup\Moat
 Service path is: fixtures\Moat
 
-Label Key written to: C:\Users\selfup\Moat\moatprivate
+Label Key written to: C:\Users\selfup\Moat\moatlabel
 Private Key written to: C:\Users\selfup\Moat\moatprivate
 Public Key written to: fixtures\Moat\moatpublic
 Encrypted AES Key written to: fixtures\Moat\moatkey
@@ -75,7 +75,7 @@ $ moat -home="archive" -service="fixtures"
 Moat path is: archive\Moat
 Service path is: fixtures\Moat
 
-Label Key written to: archive\Moat\moatprivate
+Label Key written to: archive\Moat\moatlabel
 Private Key written to: archive\Moat\moatprivate
 Public Key written to: fixtures\Moat\moatpublic
 Encrypted AES Key written to: fixtures\Moat\moatkey
