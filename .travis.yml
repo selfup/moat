@@ -1,0 +1,11 @@
+language: go
+
+go:
+  - 1.12.x
+
+script:
+  - go mod download
+  - ./integration/test.sh
+
+notifications:
+  email: false
