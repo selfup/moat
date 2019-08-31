@@ -30,5 +30,4 @@ else {
     exit 1
 }
 
-Remove-Item -Recurse -Force archive
-Remove-Item -Recurse -Force fixtures
+Remove-Item -Recurse -Force archive, fixtures

@@ -2,6 +2,8 @@
 
 set -e
 
+go install
+
 if [[ -d archive ]]
 then
     rm -rf archive
@@ -11,8 +13,6 @@ if [[ -d fixtures ]]
 then
     rm -rf fixtures
 fi
-
-go install
 
 WOW="wow this is going to be encrypted and saved to a cloud service directory"
 
