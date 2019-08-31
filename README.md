@@ -101,10 +101,12 @@ Decrypted: fixtures\Moat\wow.txt - to: archive\Moat\wow.txt
 $ moat -h
 Usage of moat:
   -cmd string
-        REQUIRED
+        OPTIONAL
                 main command
                 push will encrypt Moat/filename.ext to Service/Moat/filename.ext
                 pull will decrypt from Service/Moat/filename.ext to Moat/filename.ext
+                if no command is passed initial setup will be attempted
+                if Moat dir and Service/Moat dir exist nothing will be generated
   -home string
         OPTIONAL
                 Home dir (here you want Moat to be created at) - defaults to $HOME or USERPROFILE

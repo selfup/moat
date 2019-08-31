@@ -17,10 +17,12 @@ import (
 
 func main() {
 	var cmd string
-	flag.StringVar(&cmd, "cmd", "", `REQUIRED
+	flag.StringVar(&cmd, "cmd", "", `OPTIONAL
 	main command
 	push will encrypt Moat/filename.ext to Service/Moat/filename.ext
-	pull will decrypt from Service/Moat/filename.ext to Moat/filename.ext`)
+	pull will decrypt from Service/Moat/filename.ext to Moat/filename.ext
+	if no command is passed initial setup will be attempted
+	if Moat dir and Service/Moat dir exist nothing will be generated`)
 
 	var service string
 	flag.StringVar(&service, "service", "", `REQUIRED
