@@ -4,7 +4,7 @@ Make your files safe before saving them to the cloud.
 
 No passphrases to remember. Everything is generated for you.
 
-## In Development - DO NOT USE
+## In Development - POTENTIALLY UNSTABLE
 
 ```
 $ moat -service="fixtures"
