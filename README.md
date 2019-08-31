@@ -1,6 +1,8 @@
 # Moat
 
-Make your files safe before saving them to the cloud
+Make your files safe before saving them to the cloud.
+
+No passphrases to remember. Everything is generated for you.
 
 ## In Development - DO NOT USE
 
@@ -44,7 +46,7 @@ You can also define your own Vault path, but we can talk about that later.
 
 ## How is this safe?
 
-1. Keys are randomly generated (aesKey, label)
+1. Keys are randomly generated (passphrase, label)
 1. RSA 4096
 1. AES 256
 
