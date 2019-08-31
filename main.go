@@ -15,8 +15,6 @@ import (
 	"github.com/selfup/moat/pkg/encryption"
 )
 
-const aesKey = "12345678901234567890123456789012"
-
 func main() {
 	var cmd string
 	flag.StringVar(&cmd, "cmd", "", `REQUIRED
