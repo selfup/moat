@@ -56,15 +56,17 @@ func main() {
 // Moat holds cli args, process info, and a mutex
 type Moat struct {
 	sync.Mutex
+	Label               []byte
+	LabelPath           string
 	HomeDir             string
 	Command             string
 	ServicePath         string
 	MoatPath            string
-	FilePaths           []string
 	PrivateKeyPath      string
 	EncryptedAESKeyPath string
 	PublicKeyPath       string
 	DecryptedAesKey     string
+	FilePaths           []string
 }
 
 // Scan walks the given directory tree
@@ -107,9 +109,10 @@ func (m *Moat) Scan() error {
 		}
 	}
 
-	m.PrivateKeyPath = m.MoatPath + gosh.Slash() + "privatemoatssh"
-	m.PublicKeyPath = m.ServicePath + gosh.Slash() + "publicmoatssh"
-	m.EncryptedAESKeyPath = m.ServicePath + gosh.Slash() + "aesKey"
+	m.PrivateKeyPath = m.MoatPath + gosh.Slash() + "moatprivate"
+	m.LabelPath = m.MoatPath + gosh.Slash() + "moatlabel"
+	m.PublicKeyPath = m.ServicePath + gosh.Slash() + "moatpublic"
+	m.EncryptedAESKeyPath = m.ServicePath + gosh.Slash() + "moatkey"
 
 	if !gosh.Fex(m.PrivateKeyPath) {
 		key := make([]byte, 32)
@@ -117,6 +120,20 @@ func (m *Moat) Scan() error {
 		_, kerr := rand.Read(key)
 		if kerr != nil {
 			panic(kerr)
+		}
+
+		label := make([]byte, 32)
+
+		_, berr := rand.Read(label)
+		if berr != nil {
+			panic(berr)
+		}
+
+		labelWriteErr := gosh.Wr(m.LabelPath, label, 0777)
+		if labelWriteErr != nil {
+			panic(labelWriteErr)
+		} else {
+			fmt.Println("Label Key written to:", m.PrivateKeyPath)
 		}
 
 		m.DecryptedAesKey = string(key)
@@ -127,7 +144,7 @@ func (m *Moat) Scan() error {
 			panic(pubErr)
 		}
 
-		encryptedAesKey := encryption.EncryptAESKey(&privateKey.PublicKey, key, []byte("moat"))
+		encryptedAesKey := encryption.PublicRSAEncryptAESKey(&privateKey.PublicKey, key, label)
 
 		privateWriteErr := gosh.Wr(m.PrivateKeyPath, privateKeyPEMBytes, 0777)
 		if privateWriteErr != nil {
@@ -153,6 +170,7 @@ func (m *Moat) Scan() error {
 
 	readPrivateKey := gosh.Rd(m.PrivateKeyPath)
 	readAESKey := gosh.Rd(m.EncryptedAESKeyPath)
+	readLabel := gosh.Rd(m.LabelPath)
 
 	block, _ := pem.Decode(readPrivateKey)
 	if block == nil {
@@ -161,7 +179,7 @@ func (m *Moat) Scan() error {
 
 	privateKeyBytes := block.Bytes
 
-	m.DecryptedAesKey = string(encryption.DecryptAESKey(privateKeyBytes, readAESKey, []byte("moat")))
+	m.DecryptedAesKey = string(encryption.PrivateRSADecryptAESKey(privateKeyBytes, readAESKey, readLabel))
 
 	var walkPath string
 	if m.Command == "pull" {
@@ -210,7 +228,7 @@ func (m *Moat) Run() {
 
 // Push encrypts Moat files to Service/Moat
 func (m *Moat) Push(moatFile string) {
-	if strings.Contains(moatFile, "privatemoatssh") {
+	if strings.Contains(moatFile, "moatprivate") || strings.Contains(moatFile, "moatlabel") {
 		return
 	}
 
@@ -235,7 +253,7 @@ func (m *Moat) Push(moatFile string) {
 
 // Pull decrypts Service/Moat files back to Moat
 func (m *Moat) Pull(serviceFile string) {
-	if strings.Contains(serviceFile, "publicmoatssh") || strings.Contains(serviceFile, "aesKey") {
+	if strings.Contains(serviceFile, "moatpublic") || strings.Contains(serviceFile, "moatkey") {
 		return
 	}
 

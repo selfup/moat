@@ -22,8 +22,8 @@ func GeneratePublicRSAKey(publicKey *rsa.PublicKey) ([]byte, error) {
 	return pubKeyBytes, nil
 }
 
-// EncryptAESKey encrypts the AES key
-func EncryptAESKey(publicKey *rsa.PublicKey, sourceText, label []byte) (encryptedText []byte) {
+// PublicRSAEncryptAESKey encrypts the AES key
+func PublicRSAEncryptAESKey(publicKey *rsa.PublicKey, sourceText, label []byte) (encryptedText []byte) {
 	var err error
 	var hash hash.Hash
 	hash = sha512.New()

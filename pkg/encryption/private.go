@@ -23,8 +23,8 @@ func GeneratePrivateRSAKeyPair() (*rsa.PrivateKey, []byte) {
 	return privateKey, privateKeyPEMBytes
 }
 
-// DecryptAESKey decrypts the AES key
-func DecryptAESKey(privateKey []byte, encryptedText, label []byte) (decryptedText []byte) {
+// PrivateRSADecryptAESKey decrypts the AES key
+func PrivateRSADecryptAESKey(privateKey []byte, encryptedText, label []byte) (decryptedText []byte) {
 	parsedPrivateKey, perr := x509.ParsePKCS1PrivateKey(privateKey)
 	if perr != nil {
 		panic(perr)
