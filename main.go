@@ -69,8 +69,8 @@ type Moat struct {
 	FilePaths           []string
 }
 
-// Scan walks the given directory tree
-func (m *Moat) Scan() error {
+// CryptoScan walks the given directory tree
+func (m *Moat) CryptoScan() error {
 	var home string
 	var homeErr error
 
@@ -92,22 +92,7 @@ func (m *Moat) Scan() error {
 	m.ServicePath = m.ServicePath + moat
 
 	m.printPaths()
-
-	moatDirExist := gosh.Fex(m.MoatPath)
-	if !moatDirExist {
-		moatErr := gosh.MkDir(m.MoatPath)
-		if moatErr != nil {
-			return moatErr
-		}
-	}
-
-	serviceDirExist := gosh.Fex(m.ServicePath)
-	if !serviceDirExist {
-		serviceErr := gosh.MkDir(m.ServicePath)
-		if serviceErr != nil {
-			return serviceErr
-		}
-	}
+	m.CreateMoatAndServiceMoatDirs()
 
 	m.PrivateKeyPath = m.MoatPath + gosh.Slash() + "moatprivate"
 	m.LabelPath = m.MoatPath + gosh.Slash() + "moatlabel"
@@ -115,57 +100,7 @@ func (m *Moat) Scan() error {
 	m.EncryptedAESKeyPath = m.ServicePath + gosh.Slash() + "moatkey"
 
 	if !gosh.Fex(m.PrivateKeyPath) {
-		key := make([]byte, 32)
-
-		_, kerr := rand.Read(key)
-		if kerr != nil {
-			panic(kerr)
-		}
-
-		label := make([]byte, 32)
-
-		_, berr := rand.Read(label)
-		if berr != nil {
-			panic(berr)
-		}
-
-		labelWriteErr := gosh.Wr(m.LabelPath, label, 0777)
-		if labelWriteErr != nil {
-			panic(labelWriteErr)
-		} else {
-			fmt.Println("Label Key written to:", m.LabelPath)
-		}
-
-		m.DecryptedAesKey = string(key)
-
-		privateKey, privateKeyPEMBytes := encryption.GeneratePrivateRSAKeyPair()
-		publicKeyBytes, pubErr := encryption.GeneratePublicRSAKey(&privateKey.PublicKey)
-		if pubErr != nil {
-			panic(pubErr)
-		}
-
-		encryptedAesKey := encryption.PublicRSAEncryptAESKey(&privateKey.PublicKey, key, label)
-
-		privateWriteErr := gosh.Wr(m.PrivateKeyPath, privateKeyPEMBytes, 0777)
-		if privateWriteErr != nil {
-			panic(privateWriteErr)
-		} else {
-			fmt.Println("Private Key written to:", m.PrivateKeyPath)
-		}
-
-		publicWriteErr := gosh.Wr(m.PublicKeyPath, publicKeyBytes, 0777)
-		if publicWriteErr != nil {
-			panic(publicWriteErr)
-		} else {
-			fmt.Println("Public Key written to:", m.PublicKeyPath)
-		}
-
-		aesKeyErr := gosh.Wr(m.EncryptedAESKeyPath, encryptedAesKey, 0777)
-		if aesKeyErr != nil {
-			panic(aesKeyErr)
-		} else {
-			fmt.Println("Encrypted AES Key written to:", m.EncryptedAESKeyPath)
-		}
+		m.SetupFiles()
 	}
 
 	readPrivateKey := gosh.Rd(m.PrivateKeyPath)
@@ -174,12 +109,13 @@ func (m *Moat) Scan() error {
 
 	block, _ := pem.Decode(readPrivateKey)
 	if block == nil {
-		log.Fatal("BAD BLOCK", block)
+		log.Fatal("Bad Private Key PEM Decode block")
 	}
 
 	privateKeyBytes := block.Bytes
+	decryptedAESKeyBytes := encryption.PrivateRSADecryptAESKey(privateKeyBytes, readAESKey, readLabel)
 
-	m.DecryptedAesKey = string(encryption.PrivateRSADecryptAESKey(privateKeyBytes, readAESKey, readLabel))
+	m.DecryptedAesKey = string(decryptedAESKeyBytes)
 
 	var walkPath string
 	if m.Command == "pull" {
@@ -196,6 +132,67 @@ func (m *Moat) Scan() error {
 	return nil
 }
 
+// CreateMoatAndServiceMoatDirs creates Moat and Service/Moat dirs if they do not exists
+func (m *Moat) CreateMoatAndServiceMoatDirs() {
+	moatDirExist := gosh.Fex(m.MoatPath)
+	if !moatDirExist {
+		moatErr := gosh.MkDir(m.MoatPath)
+		if moatErr != nil {
+			panic(moatErr)
+		}
+	}
+
+	serviceDirExist := gosh.Fex(m.ServicePath)
+	if !serviceDirExist {
+		serviceErr := gosh.MkDir(m.ServicePath)
+		if serviceErr != nil {
+			panic(serviceErr)
+		}
+	}
+}
+
+// SetupFiles will generate all needed information for Vaults to Encrypt/Decrypt
+func (m *Moat) SetupFiles() {
+	key := generate32ByteKey()
+	label := generate32ByteKey()
+
+	setupFileWrite(m.LabelPath, label, "Label Key")
+
+	m.DecryptedAesKey = string(key)
+
+	privateKey, privateKeyPEMBytes := encryption.GeneratePrivateRSAKeyPair()
+	publicKeyBytes, pubErr := encryption.GeneratePublicRSAKey(&privateKey.PublicKey)
+	if pubErr != nil {
+		panic(pubErr)
+	}
+
+	encryptedAesKey := encryption.PublicRSAEncryptAESKey(&privateKey.PublicKey, key, label)
+
+	setupFileWrite(m.PrivateKeyPath, privateKeyPEMBytes, "Private Key")
+	setupFileWrite(m.PublicKeyPath, publicKeyBytes, "Public Key")
+	setupFileWrite(m.EncryptedAESKeyPath, encryptedAesKey, "Encrypted AES Key")
+}
+
+func generate32ByteKey() []byte {
+	key := make([]byte, 32)
+
+	_, kerr := rand.Read(key)
+	if kerr != nil {
+		panic(kerr)
+	}
+
+	return key
+}
+
+func setupFileWrite(setupPath string, setupBytes []byte, setupMessage string) {
+	err := gosh.Wr(setupPath, setupBytes, 0777)
+	if err != nil {
+		panic(err)
+	} else {
+		fmt.Println(setupMessage, "written to:", setupPath)
+	}
+}
+
 func (m *Moat) scan(path string, info os.FileInfo, err error) error {
 	if err != nil {
 		return err
@@ -210,7 +207,7 @@ func (m *Moat) scan(path string, info os.FileInfo, err error) error {
 
 // Run runs moat
 func (m *Moat) Run() {
-	err := m.Scan()
+	err := m.CryptoScan()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -290,5 +287,6 @@ func (m *Moat) moatPath(serviceFile string) string {
 func (m *Moat) printPaths() {
 	fmt.Println("Moat path is:", m.MoatPath)
 	fmt.Println("Service path is:", m.ServicePath)
+
 	fmt.Println("")
 }
