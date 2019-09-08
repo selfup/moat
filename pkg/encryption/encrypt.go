@@ -14,19 +14,19 @@ func Encrypt(fileContents []byte, aesKey string) []byte {
 
 	c, err := aes.NewCipher(key)
 	if err != nil {
-		log.Fatal("c ", err)
+		log.Fatal("encrypt newcypher ", err)
 	}
 
 	gcm, err := cipher.NewGCM(c)
 	if err != nil {
-		log.Fatal("gcm ", err)
+		log.Fatal("encrypt newgcm ", err)
 	}
 
 	nonce := make([]byte, gcm.NonceSize())
 
 	_, err = io.ReadFull(rand.Reader, nonce)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("encrypt readfull ", err)
 	}
 
 	return gcm.Seal(nonce, nonce, fileContents, nil)

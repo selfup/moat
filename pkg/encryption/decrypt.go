@@ -12,12 +12,12 @@ func Decrypt(contents []byte, aesKey string) []byte {
 
 	c, err := aes.NewCipher(key)
 	if err != nil {
-		log.Fatal("c ", err)
+		log.Fatal("decrypt newcypher ", err)
 	}
 
 	gcm, err := cipher.NewGCM(c)
 	if err != nil {
-		log.Fatal("gcm ", err)
+		log.Fatal("decrypt newgcm ", err)
 	}
 
 	nonceSize := gcm.NonceSize()
@@ -25,7 +25,7 @@ func Decrypt(contents []byte, aesKey string) []byte {
 
 	plaintext, err := gcm.Open(nil, nonce, stuff, nil)
 	if err != nil {
-		panic(err)
+		log.Fatal("decrypt open ", err)
 	}
 
 	return plaintext

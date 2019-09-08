@@ -6,7 +6,6 @@ import (
 	"crypto/sha512"
 	"crypto/x509"
 	"encoding/pem"
-	"hash"
 	"log"
 )
 
@@ -30,11 +29,10 @@ func PrivateRSADecryptAESKey(privateKey []byte, encryptedText, label []byte) (de
 		panic(perr)
 	}
 
-	var err error
-	var hash hash.Hash
-	hash = sha512.New()
-	if decryptedText, err = rsa.DecryptOAEP(hash, rand.Reader, parsedPrivateKey, encryptedText, label); err != nil {
-		log.Fatal(err)
+	hash := sha512.New()
+	decryptedText, err := rsa.DecryptOAEP(hash, rand.Reader, parsedPrivateKey, encryptedText, label)
+	if err != nil {
+		panic(err)
 	}
 
 	return decryptedText
