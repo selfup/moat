@@ -209,7 +209,7 @@ func (m *Moat) scan(path string, info os.FileInfo, err error) error {
 func (m *Moat) Run() {
 	err := m.CryptoScan()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("cryptoscan ", err)
 	}
 
 	for _, moatFile := range m.FilePaths {

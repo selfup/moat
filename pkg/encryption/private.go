@@ -30,23 +30,23 @@ func PrivateRSADecryptAESKey(privateKey []byte, encryptedText, label []byte) (de
 	}
 
 	hash := sha512.New()
-	decryptedText, err := rsa.DecryptOAEP(hash, rand.Reader, parsedPrivateKey, encryptedText, label)
-	if err != nil {
-		panic(err)
+	decryptedText, derr := rsa.DecryptOAEP(hash, rand.Reader, parsedPrivateKey, encryptedText, label)
+	if derr != nil {
+		panic(derr)
 	}
 
 	return decryptedText
 }
 
 func generatePrivateKey(bitSize int) (*rsa.PrivateKey, error) {
-	privateKey, err := rsa.GenerateKey(rand.Reader, bitSize)
-	if err != nil {
-		return nil, err
+	privateKey, gerr := rsa.GenerateKey(rand.Reader, bitSize)
+	if gerr != nil {
+		return nil, gerr
 	}
 
-	err = privateKey.Validate()
-	if err != nil {
-		return nil, err
+	verr := privateKey.Validate()
+	if verr != nil {
+		return nil, verr
 	}
 
 	return privateKey, nil
